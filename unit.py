@@ -1,6 +1,23 @@
 import pygame,random, math
 
-class Unit:
+class Entity:
+    x=0
+    y=0
+    w=50
+    h=50    
+    color=(0,120,0)
+    window=0
+    
+    def draw(self):
+        pygame.draw.rect(self.window,self.color,(int(self.x),int(self.y),self.w,self.h))
+
+    def __init__(self,window,x,y):
+        self.x=x
+        self.y=y
+        self.window=window
+
+
+class Unit(Entity):
 	x=0
 	y=0
 	w=20
@@ -12,15 +29,7 @@ class Unit:
 	speed_y=0
 	state="idle"
 	window=0
-	
-	def __init__(self,window,x,y):
-		self.x=x
-		self.y=y
-		self.window=window
-	
-	def draw(self):
-		pygame.draw.rect(self.window,self.color,(int(self.x-self.w/2),int(self.y-self.h/2),self.w,self.h))
-	
+
 	def set_destination_point(self,pos):
 		self.dest=pos
 		X=abs(self.dest[0]-self.x)
@@ -60,3 +69,25 @@ class Unit:
 		if self.state=="move":
 			self.go_to_dest()
 	
+class Building(Entity):
+
+    def __init__(self):
+        self.w=300
+        self.h=300
+        self.color=(180,120,0)
+        self.production_speed=100
+        self.production=0
+
+    def produce_units(self):
+        unit = Unit()
+        unit.x=self.x+self.w+10
+        unit.y=self.y+self.h+10
+        unit.dest=(unit.x+random.randint(0,500),unit.y+random.randint(0,500))
+        unit.state='move'
+        units.append(unit)
+
+    def ai(self):
+        self.production+=1
+        if self.production>=self.production_speed:
+            self.production=0
+            self.produce_units()
