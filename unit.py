@@ -9,6 +9,7 @@ class Entity:
 	sel_color=(100,120,0)
 	window=0    
 	selected=True
+	player=1
 	
 	def draw(self):
 		if self.selected:
@@ -87,6 +88,68 @@ class Unit(Entity):
 			self.go_to_dest()
 	
 	
+class ShootingUnit(Unit):
+	target=None
+	
+	hp=100
+	max_hp=100
+	
+	
+	armor=5
+	
+	color=(200,120,200)
+	sel_color=(200,120,100)
+	
+	bullets=[]
+	
+	def set_target(self,target):
+		self.target=target
+		
+	
+	def shoot(self):
+		bullet=Bullet(self.window,self.x,self.y)
+		bullet.target=self.target
+		return bullet
+		
+	def ai(self):
+		if self.state=="idle":
+			pass
+		if self.state=="move":
+			self.go_to_dest()
+		
+		if self.state=="patrol":
+			self.go_to_dest()
+			
+		if self.state=="shoot":
+			if self.target!=None:
+				self.bullets.append(self.shoot())
+				
+	def get_damage(self,dmg):
+		self.hp-=dmg
+			
+		
+class Bullet(Unit):
+	target=None
+	speed=20
+	state="move"
+	damage=10
+	
+	color=(200,200,200)
+	
+		
+	def draw(self):
+		pygame.draw.circle(self.window,self.color,(int(self.x),int(self.y)),2)
+		
+	def ai(self):
+		if self.target!=None:
+			self.set_destination_point((self.target.x,self.target.y))
+			self.go_to_dest()
+			if self.state=="idle":
+				self.target.get_damage(self.damage)
+		else:
+			self.state="idle"
+				
+
 class Building(Entity):
 	
 	units=[]
@@ -96,7 +159,7 @@ class Building(Entity):
 		self.w=300
 		self.h=300
 		self.color=(180,120,0)
-		self.production_speed=100
+		self.production_speed=1000
 		self.production=0
 
 	def produce_units(self):

@@ -1,19 +1,30 @@
 import pygame,random, math
-from unit import Unit,Building
+from unit import *
 from interface import Frame, in_frame
 window = pygame.display.set_mode((1200,800),pygame.RESIZABLE)
 	
 run=True
 
 units=[]
+
+
+dummy=ShootingUnit(window,600,400)
+dummy.selected=False
+units.append(dummy)
+
 for i in range(1):
-	unit=Unit(window,random.randint(100,1100),random.randint(100,700))
+	unit=ShootingUnit(window,random.randint(100,1100),random.randint(100,700))
+	unit.state="shoot"
+	unit.target=dummy
 	units.append(unit)
+
 
 building=Building(window,10,20)
 building.units=units
 
 frame=Frame(window,0,0)
+
+bullets=[]
 
 
 while run:
@@ -26,7 +37,7 @@ while run:
 				for un in units:
 					if un.selected == True:
 						un.set_destination_point((event.pos[0],event.pos[1]))
-						un.state="patrol"
+						un.state="move"
 			elif event.button == 2:
 				get_unit=False
 				for un in units:
@@ -64,11 +75,24 @@ while run:
 	window.fill((120,120,220))
 	
 	building.draw()
-	building.ai()
+	#building.ai()
 	
 	for unit in units:
 		unit.draw()
 		unit.ai()
+		if type(unit)==ShootingUnit:
+			bullets+=unit.bullets
+			if unit.hp<=0:
+				units.remove(unit)
+				del unit
+	
+	for bullet in bullets:
+		if bullet.state=="move":
+			bullet.draw()
+			bullet.ai()
+		else:
+			bullets.remove(bullet)
+			del bullet
 	
 	frame.draw()
 	
