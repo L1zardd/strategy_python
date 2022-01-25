@@ -1,6 +1,7 @@
 import pygame,random, math
 from unit import *
 from interface import Frame, in_frame
+from level import Tile, Map
 window = pygame.display.set_mode((1200,800),pygame.RESIZABLE)
 	
 run=True
@@ -8,15 +9,7 @@ run=True
 units=[]
 
 
-dummy=ShootingUnit(window,600,400)
-dummy.selected=False
-units.append(dummy)
-
-for i in range(1):
-	unit=ShootingUnit(window,random.randint(100,1100),random.randint(100,700))
-	unit.state="shoot"
-	unit.target=dummy
-	units.append(unit)
+map1=Map(window,40,30)
 
 
 building=Building(window,10,20)
@@ -74,8 +67,9 @@ while run:
 	#ОТРИСОВКА
 	window.fill((120,120,220))
 	
+	map1.draw()
 	building.draw()
-	#building.ai()
+	building.ai()
 	
 	for unit in units:
 		unit.draw()
