@@ -1,7 +1,10 @@
+#импорт необходимых библиотек
 import pygame,random, math
+#импорт классов из других файлов
 from unit import *
 from interface import Frame, in_frame
 from level import Tile, Map
+#главное окно программы
 window = pygame.display.set_mode((1200,800),pygame.RESIZABLE)
 	
 run=True
@@ -22,17 +25,23 @@ bullets=[]
 
 while run:
 	#ОЧЕРЕДЬ СОБЫТИЙ
+	#проверяются события
 	for event in pygame.event.get():
+		#выход из приложения
 		if event.type == pygame.QUIT:
 			run=False
+		#если нажата кнопка мыши
 		if event.type == pygame.MOUSEBUTTONDOWN:
+			#если левая - выбранные юниты перемещаются в точку назначения
 			if event.button == 1:
 				for un in units:
 					if un.selected == True:
 						un.set_destination_point((event.pos[0],event.pos[1]))
 						un.state="move"
+			#если средняя - выбор юнитов
 			elif event.button == 2:
 				get_unit=False
+				#выбор юнита, попавшего на курсор
 				for un in units:
 					if abs(un.x-event.pos[0])<un.w and abs(un.y-event.pos[1])<un.h:
 						if un.selected == False:
@@ -40,11 +49,12 @@ while run:
 						else:
 							un.selected=False
 						get_unit=True
+				#выбор юнитов с помощью рамки
 				if not get_unit:
 					frame.x,frame.y=event.pos
 					frame.h,frame.w=0,0
 				
-				
+			#если правая - 
 			elif event.button == 3:
 				units.append(Unit(window,event.pos[0],event.pos[1]))
 				units[-1].selected=False
