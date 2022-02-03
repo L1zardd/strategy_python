@@ -127,6 +127,7 @@ class ShootingUnit(Unit):
 	def get_damage(self,dmg):
 		self.hp-=dmg
 			
+
 		
 class Bullet(Unit):
 	target=None
@@ -148,19 +149,45 @@ class Bullet(Unit):
 				self.target.get_damage(self.damage)
 		else:
 			self.state="idle"
+
+class GruntRobot(Unit):
+	pass
+	
+class InfantryRobot(ShootingUnit):
+	pass
+
+class SniperRobot(ShootingUnit):
+	pass
+	
+class RPGRobot(ShootingUnit):
+	pass
+	
+class LightVenicle(ShootingUnit):
+	pass
+	
+class TankVenicle(ShootingUnit):
+	pass
+	
+class DevastatorVenicle(ShootingUnit):
+	pass
+
 				
 
 class Building(Entity):
 	
 	units=[]
+	spritefile="building.png"
 
 	def __init__(self,window,x,y):
 		self.window=window
-		self.w=300
-		self.h=300
+		self.w=128
+		self.h=128
+		self.x=x
+		self.y=y
 		self.color=(180,120,0)
-		self.production_speed=1000
+		self.production_speed=100
 		self.production=0
+		self.sprite=pygame.image.load(self.spritefile)
 
 	def produce_units(self):
 		unit = Unit(self.window,self.x+self.w+10,self.y+self.h+10)
@@ -173,3 +200,38 @@ class Building(Entity):
 		if self.production>=self.production_speed:
 			self.production=0
 			self.produce_units()
+	
+	def draw(self):
+		self.window.blit(self.sprite, (self.x,self.y))
+		pygame.draw.rect(self.window,(200,200,200),(self.x,self.y-5,self.w,4))
+		pygame.draw.rect(self.window,(50,200,50),(self.x,self.y-4,math.floor((self.production/self.production_speed)*self.w),2))
+		
+		'''TO DO
+		1.Анимация
+		2.Шкала производства
+		3.Точка назначения юнитов
+		'''
+
+class GruntFactory(Building):
+	spritefile="building1.png"
+	self.production_speed=120
+	
+	def produce_units(self):
+		unit = GruntRobot(self.window,self.x+self.w//2+10,self.y+self.h+10)
+		unit.dest=unit.x,unit.y+30
+		unit.state='move'
+		self.units.append(unit)
+	
+
+
+class InfantryFactory(Building):
+	pass #Matthew		
+
+class SniperFactory(Building):
+	pass #Arseny	
+	
+class RPGFactory(Building):
+	pass #Lev	
+	
+class LightVenicleFactory(Building):
+	pass #Alexei	

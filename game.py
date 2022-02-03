@@ -15,7 +15,7 @@ units=[]
 map1=Map(window,10,10)
 
 
-building=Building(window,10,20)
+building=Building(window,10,120)
 building.units=units
 
 frame=Frame(window,0,0)
