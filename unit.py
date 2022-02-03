@@ -228,7 +228,14 @@ class InfantryFactory(Building):
 	pass #Matthew		
 
 class SniperFactory(Building):
-	pass #Arseny	
+	spritefile="./assets/img/buildings/sniper_factory.png"
+	self.production_speed=180
+	
+	def produce_units(self):
+		unit = SniperRobot(self.window,self.x+self.w//2+10,self.y+self.h+10)
+		unit.dest=unit.x,unit.y+30
+		unit.state='move'
+		self.units.append(unit)
 	
 class RPGFactory(Building):
 	pass #Lev	
