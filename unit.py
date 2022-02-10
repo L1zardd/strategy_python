@@ -21,6 +21,13 @@ class Entity:
 		self.x=x
 		self.y=y
 		self.window=window
+		
+	def distance(self,obj):
+		x=abs(self.x-obj.x)
+		y=abs(self.y-obj.y)
+		d=math.hypot(x,y)
+		print(d)
+		return d
 
 
 class Unit(Entity):
@@ -172,6 +179,42 @@ class DevastatorVenicle(ShootingUnit):
 	pass
 
 				
+class Banner(Entity):
+	player=0
+	spritefile="./assets/img/misc/banner_{}.png".format(player)
+	capture_time=200
+	capture=0
+	capture_player=0
+	
+	def __init__(self,window,x,y):
+		self.window=window
+		self.x=x
+		self.y=y
+		self.sprite=pygame.image.load(self.spritefile)
+	
+	def draw(self):
+		self.window.blit(self.sprite, (self.x,self.y))
+		if self.capture!=0:
+			pygame.draw.rect(self.window,(200,200,200),(self.x,self.y-5,64,4))
+			pygame.draw.rect(self.window,(50,200,50),(self.x,self.y-4,math.floor((self.capture/self.capture_time)*64),2))
+		
+	def capture_banner(self,player):
+		self.capture_player=player
+		self.capture+=1
+		if self.capture>=self.capture_time:
+			self.change_player(player)
+			self.capture=0
+		
+	
+	def change_player(self,player):
+		self.player=player
+		print("player=",player)
+		self.spritefile="./assets/img/misc/banner_{}.png".format(player)
+		self.sprite=pygame.image.load(self.spritefile)
+	
+	#TO DO
+	#сделать время захвата флага
+	#сделать индикатор захвата флага
 
 class Building(Entity):
 	
@@ -214,7 +257,7 @@ class Building(Entity):
 
 class GruntFactory(Building):
 	spritefile="building1.png"
-	self.production_speed=120
+	production_speed=120
 	
 	def produce_units(self):
 		unit = GruntRobot(self.window,self.x+self.w//2+10,self.y+self.h+10)
@@ -229,7 +272,7 @@ class InfantryFactory(Building):
 
 class SniperFactory(Building):
 	spritefile="./assets/img/buildings/sniper_factory.png"
-	self.production_speed=180
+	production_speed=180
 	
 	def produce_units(self):
 		unit = SniperRobot(self.window,self.x+self.w//2+10,self.y+self.h+10)
@@ -238,7 +281,14 @@ class SniperFactory(Building):
 		self.units.append(unit)
 	
 class RPGFactory(Building):
-	pass #Lev	
+	production_speed=180
+	spritefile="./assets/img/buildings/RPG_factory.png"
+
+	def produce_units(self):
+		unit = RPGRobot(self.window,self.x+self.w//2+10,self.y+self.h+10)
+		unit.dest=unit.x,unit.y+30
+		unit.state='move'
+		self.units.append(unit)	
 	
 class LightVenicleFactory(Building):
 	pass #Alexei	

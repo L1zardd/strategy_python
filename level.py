@@ -16,16 +16,19 @@ class Tile:
 	
 
 class Map:
+	#Массив, хранящий уровень
 	level=[]
+	#ширина и высота в клетках
 	w=0
 	h=0
+	#окно отрисовки
 	window=None
+	#файл с тайлами
 	tilemap_file='daLandSnow.png'
 	tilemap=None
 	
 	def __init__(self,window,w,h):
-		self.window=window
-		
+		self.window=window		
 		self.tilemap=pygame.image.load(self.tilemap_file)
 		self.create_random_map(w,h)
 		

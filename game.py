@@ -14,6 +14,8 @@ units=[]
 
 map1=Map(window,10,10)
 
+banner1=Banner(window,600,400)
+
 
 building=Building(window,10,120)
 building.units=units
@@ -57,6 +59,7 @@ while run:
 			#если правая - 
 			elif event.button == 3:
 				units.append(Unit(window,event.pos[0],event.pos[1]))
+				units[-1].player=2
 				units[-1].selected=False
 		if event.type==pygame.MOUSEMOTION:
 			if event.buttons==(0,1,0):
@@ -81,9 +84,21 @@ while run:
 	building.draw()
 	building.ai()
 	
+	banner1.draw()
+	
 	for unit in units:
 		unit.draw()
 		unit.ai()
+		if banner1.distance(unit)<150:
+			print("unit player=",unit.player)
+			print("banner player=",banner1.capture_player)
+			if banner1.capture_player!=unit.player:
+				banner1.capture=0
+				print("zero")
+			banner1.capture_banner(unit.player)
+			
+			
+		
 		if type(unit)==ShootingUnit:
 			bullets+=unit.bullets
 			if unit.hp<=0:
@@ -97,6 +112,8 @@ while run:
 		else:
 			bullets.remove(bullet)
 			del bullet
+	
+	
 	
 	frame.draw()
 	
