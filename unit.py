@@ -1,76 +1,107 @@
 import pygame,random, math
 
+#базовый класс
+#для всего, что отрисовано на экране
+#кроме карты 
 class Entity:
+	#координаты
 	x=0
 	y=0
+	#размеры
 	w=50
 	h=50    
+	#цвет
 	color=(0,120,0)
+	#цвет_выбранного
 	sel_color=(100,120,0)
+	#окно, в котором будем отрисовывать объект
 	window=0    
-	selected=True
+	#выбран - не выбран
+	selected=False
+	#игрок
 	player=1
 	
+	#отрисовка объекта 
 	def draw(self):
+		#если выбрана
 		if self.selected:
+			#одним цветом
 			pygame.draw.rect(self.window,self.sel_color,(int(self.x),int(self.y),self.w,self.h))
 		else:
+			#иначе - другим
 			pygame.draw.rect(self.window,self.color,(int(self.x),int(self.y),self.w,self.h))
 
+	#конструктор
 	def __init__(self,window,x,y):
+		#указываем координаты
 		self.x=x
 		self.y=y
+		#и окно для отрисовки
 		self.window=window
-		
+	
+	#измерение дистанции от этого объекта до объекта obj
 	def distance(self,obj):
+		#по теореме Пифагора
 		x=abs(self.x-obj.x)
 		y=abs(self.y-obj.y)
+		#вычислим гипотенузу - расстояние меж объектами
 		d=math.hypot(x,y)		
 		return d
 
-
-class Unit(Entity):
-	x=0
-	y=0
-	w=20
-	h=20
-	color=(0,120,0)
+#класс Юнит, унаследованный от Сущности
+class Unit(Entity):	
+	#точка назначения (в которую юнит движется)
 	dest = 0, 0
+	#и точка отправления
 	start = 0, 0
+	#скорость
 	speed=5
+	#скорости по осям
 	speed_x=0
 	speed_y=0
+	#состояние юнита
 	state="idle"
-	window=0
 
+	#указываем точку назначения юнита
 	def set_destination_point(self,pos):
+		#двигается в то место, которое передали в pos
 		self.dest=pos
+		#Вычисляем скорости по осям x и y
+		#По теореме Пифагора
 		X=abs(self.dest[0]-self.x)
 		Y=abs(self.dest[1]-self.y)
 		L=math.sqrt(X*X+Y*Y)
 		if L!=0:
+			#Вычисляем синусы для большого треугольника (между точкой старта и назначения)
 			sin_a=Y/L
 			cos_a=X/L
+			#и Вычисляем скорости по осям x и y
 			self.speed_x=self.speed*cos_a
 			self.speed_y=self.speed*sin_a
 		else:
 			self.speed_x=1
 			self.speed_y=1
-		
+	
+	#Один шаг в указанную точку
 	def go_to_dest(self):
+		#Если уже дошел до точки
 		if abs(self.x-self.dest[0])<self.speed_x:
+			#Помещаем его в конечную точку
 			self.x=self.dest[0]
+			#Останавливаем - больше не двигается
 			if self.state=="move":
 				self.state="idle"
+			#Если патрулировал - побежал обратно
 			if self.state=="patrol":
-				print("changed!")
 				self.dest,self.start=self.start,self.dest
 		else:
+			#Если еще не дошел до конца
 			if self.x<self.dest[0]:
+				#Двигаем на шаг, равный speed_x в нужную сторону
 				self.x+=self.speed_x
 			else:
 				self.x-=self.speed_x
-				
+		#То же самое по y
 		if abs(self.y-self.dest[1])<self.speed_y:
 			self.y=self.dest[1]
 			if self.state=="move":
@@ -83,29 +114,33 @@ class Unit(Entity):
 				self.y+=self.speed_y
 			else:
 				self.y-=self.speed_y
-	
+	#Искусственный интеллект
 	def ai(self):
+		#Если стоим
 		if self.state=="idle":
+			#стоим и ничего не делаем
 			pass
+		#Если двигаемся
 		if self.state=="move":
+			#делаем шаг в точку назначения
 			self.go_to_dest()
-		
+		#Если патрулируем
 		if self.state=="patrol":
+			#делаем шаг в точку назначения
 			self.go_to_dest()
 	
 	
 class ShootingUnit(Unit):
+	#Цель стрельбы
 	target=None
-	
+	#Хитпойнты
 	hp=100
 	max_hp=100
 	
-	
+	#Броня
 	armor=5
 	
-	color=(200,120,200)
-	sel_color=(200,120,100)
-	
+	#Пули	
 	bullets=[]
 	
 	def set_target(self,target):
@@ -192,7 +227,7 @@ class InfantryRobot(ShootingUnit):
      def __init__(self,window,x,y):
          super().__init__(window,x,y)
          self.sprite=pygame.image.load(self.spritefile)
-         self.sprite=pygame.transform.scale(self.sprite,(32,32))
+         #self.sprite=pygame.transform.scale(self.sprite,(32,32))
 
      def draw(self):
          self.window.blit(self.sprite,(self.x,self.y) )
