@@ -25,8 +25,7 @@ class Entity:
 	def distance(self,obj):
 		x=abs(self.x-obj.x)
 		y=abs(self.y-obj.y)
-		d=math.hypot(x,y)
-		print(d)
+		d=math.hypot(x,y)		
 		return d
 
 
@@ -158,25 +157,139 @@ class Bullet(Unit):
 			self.state="idle"
 
 class GruntRobot(Unit):
-	pass
+	spritefile = "assets/img/units/RobotGruntSmall.png"
+	sprite=''
+	
+	hp=100
+	max_hp=100
+	armor=5
+	shooting_radius=128
+	shooting_speed=50 # ~1 в секунду
+	speed=3
+	
+	
+	
+	def __init__(self,window,x,y):
+		super().__init__(window,x,y)
+		self.sprite=pygame.image.load(self.spritefile)
+		#self.sprite=pygame.transform.scale(self.sprite,(32,32))
+		
+	def draw(self):
+		self.window.blit(self.sprite,(self.x,self.y))
 	
 class InfantryRobot(ShootingUnit):
-	pass
+     spritefile="assets/img/units/RobotInfantrySmall.png"
+     sprite=''
+
+     hp=100
+     max_hp=100
+     armor=10
+     shooting_speed=150
+     shooting_radius=160
+     speed=5
+
+
+     def __init__(self,window,x,y):
+         super().__init__(window,x,y)
+         self.sprite=pygame.image.load(self.spritefile)
+         self.sprite=pygame.transform.scale(self.sprite,(32,32))
+
+     def draw(self):
+         self.window.blit(self.sprite,(self.x,self.y) )
 
 class SniperRobot(ShootingUnit):
-	pass
-	
+    spritefile = "assets/img/units/RobotSniperSmall.png"
+    sprite=' '
+    hp=100
+    max_hp=100
+    armor=5
+    shooting_radius=1280
+    shooting_speed=250 
+    speed=2
+    
+    def __init__(self,window,x,y):
+        super().__init__(window,x,y)
+        self.sprite=pygame.image.load(self.spritefile)
+        #self.sprite=pygame.transform.scale(self.sprite,(32,32))
+
+    def draw(self):
+        self.window.blit(self.sprite,(self.x,self.y))
+
 class RPGRobot(ShootingUnit):
-	pass
+    spritefile = "assets/img/units/RobotRPGSmall.png"
+    sprite = ''
+
+    hp = 150
+    max_hp = 150
+    armor = 15
+    shooting_radius = 350
+    shooting_speed = 17  # ~1 в 3секунды
+    speed = 3
+
+    def __init__(self, window, x, y):
+        super().__init__(window, x, y)
+        self.sprite = pygame.image.load(self.spritefile)
+        #self.sprite = pygame.transform.scale(self.sprite, (32, 32))
+
+    def draw(self):
+        self.window.blit(self.sprite, (self.x, self.y))
 	
 class LightVenicle(ShootingUnit):
-	pass
+    spritefile = "assets/img/units/LightVenicleSmall.png"
+    sprite=''
+    hp=130
+    max_hp=130
+    armor=5
+    shooting_radius=128
+    shooting_speed=80 # ~1 в секунду
+    speed=9
+
+    def __init__(self,window,x,y):
+        super().__init__(window,x,y)
+        self.sprite=pygame.image.load(self.spritefile)
+        #self.sprite=pygame.transform.scale(self.sprite,(32,32))
+
+    def draw(self):
+        self.window.blit(self.sprite,(self.x,self.y))
 	
 class TankVenicle(ShootingUnit):
-	pass
+    
+    spritefile = "assets/img/units/TankVenicleSmall.png"
+    sprite=''
+    
+    hp=700
+    max_hp=700
+    armor=10
+    shooting_radius=256
+    shooting_speed=125 # ~1 раз в 2.5 секунды
+    speed=5
+    
+    def __init__(self, window, x, y):
+        super().__init__(window, x ,y)
+        self.sprite=pygame.image.load(self.spritefile)
+        #self.sprite=pygame.transform.scale(self.sprite, (128,64))
+
+    
+    def draw(self):
+        self.window.blit(self.sprite,(self.x,self.y))
 	
 class DevastatorVenicle(ShootingUnit):
-	pass
+    spritefile = "assets/img/units/DevastatorSmall.png"
+    sprite=''
+
+    hp=500
+    max_hp=500
+    armor=15
+    shooting_radius=128
+    shooting_speed=10 # ~1 в секунду
+    speed=1
+    def __init__(self,window,x,y):
+        super().__init__(window,x,y)
+        self.sprite=pygame.image.load(self.spritefile)
+        #self.sprite=pygame.transform.scale(self.sprite,(32,32))
+
+    def draw(self):
+        self.window.blit(self.sprite,(self.x,self.y))
 
 				
 class Banner(Entity):
@@ -256,8 +369,12 @@ class Building(Entity):
 		'''
 
 class GruntFactory(Building):
-	spritefile="building1.png"
+	spritefile="./assets/img/buildings/building1.png"
 	production_speed=120
+	
+	def __init__(self,window,x,y):
+		super().__init__(window,x,y)
+		self.production_speed=220
 	
 	def produce_units(self):
 		unit = GruntRobot(self.window,self.x+self.w//2+10,self.y+self.h+10)
@@ -272,19 +389,29 @@ class InfantryFactory(Building):
 
 class SniperFactory(Building):
 	spritefile="./assets/img/buildings/sniper_factory.png"
-	production_speed=180
+	production_speed=380
+	
+	def __init__(self,window,x,y):
+		super().__init__(window,x,y)
+		self.production_speed=380
 	
 	def produce_units(self):
+		print("Sniper factory pr speed", self.production_speed)
 		unit = SniperRobot(self.window,self.x+self.w//2+10,self.y+self.h+10)
 		unit.dest=unit.x,unit.y+30
 		unit.state='move'
 		self.units.append(unit)
 	
 class RPGFactory(Building):
-	production_speed=180
+	production_speed=580
 	spritefile="./assets/img/buildings/RPG_factory.png"
+	
+	def __init__(self,window,x,y):
+		super().__init__(window,x,y)
+		self.production_speed=580
 
 	def produce_units(self):
+		print("RPG factory pr speed", self.production_speed)
 		unit = RPGRobot(self.window,self.x+self.w//2+10,self.y+self.h+10)
 		unit.dest=unit.x,unit.y+30
 		unit.state='move'

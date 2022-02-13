@@ -10,15 +10,26 @@ window = pygame.display.set_mode((1200,800),pygame.RESIZABLE)
 run=True
 
 units=[]
-
+buildings=[]
 
 map1=Map(window,10,10)
 
 banner1=Banner(window,600,400)
 
 
-building=Building(window,10,120)
+building=GruntFactory(window,10,120)
 building.units=units
+buildings.append(building)
+
+building=SniperFactory(window,410,120)
+building.units=units
+buildings.append(building)
+
+building=RPGFactory(window,810,520)
+building.units=units
+buildings.append(building)
+
+
 
 frame=Frame(window,0,0)
 
@@ -81,8 +92,9 @@ while run:
 	window.fill((120,120,220))
 	
 	map1.draw()
-	building.draw()
-	building.ai()
+	for building in buildings:
+		building.draw()
+		building.ai()
 	
 	banner1.draw()
 	
