@@ -49,6 +49,7 @@ class Entity:
 		return d
 
 #класс Юнит, унаследованный от Сущности
+#умеет бегать
 class Unit(Entity):	
 	#точка назначения (в которую юнит движется)
 	dest = 0, 0
@@ -70,7 +71,7 @@ class Unit(Entity):
 		#По теореме Пифагора
 		X=abs(self.dest[0]-self.x)
 		Y=abs(self.dest[1]-self.y)
-		L=math.sqrt(X*X+Y*Y)
+		L=math.hypot(X,Y)
 		if L!=0:
 			#Вычисляем синусы для большого треугольника (между точкой старта и назначения)
 			sin_a=Y/L
@@ -107,13 +108,13 @@ class Unit(Entity):
 			if self.state=="move":
 				self.state="idle"
 			if self.state=="patrol":
-				print("changed!")
 				self.dest,self.start=self.start,self.dest
 		else:
 			if self.y<self.dest[1]:
 				self.y+=self.speed_y
 			else:
 				self.y-=self.speed_y
+				
 	#Искусственный интеллект
 	def ai(self):
 		#Если стоим
@@ -136,6 +137,7 @@ class ShootingUnit(Unit):
 	#Хитпойнты
 	hp=100
 	max_hp=100
+	shooting_radius=50
 	
 	#Броня
 	armor=5
@@ -191,14 +193,14 @@ class Bullet(Unit):
 		else:
 			self.state="idle"
 
-class GruntRobot(Unit):
+class GruntRobot(ShootingUnit):
 	spritefile = "assets/img/units/RobotGruntSmall.png"
 	sprite=''
 	
-	hp=100
-	max_hp=100
-	armor=5
-	shooting_radius=128
+	hp=50
+	max_hp=50
+	armor=1
+	shooting_radius=50
 	shooting_speed=50 # ~1 в секунду
 	speed=3
 	
@@ -218,9 +220,9 @@ class InfantryRobot(ShootingUnit):
 
      hp=100
      max_hp=100
-     armor=10
+     armor=7
      shooting_speed=150
-     shooting_radius=160
+     shooting_radius=100
      speed=5
 
 
@@ -235,10 +237,10 @@ class InfantryRobot(ShootingUnit):
 class SniperRobot(ShootingUnit):
     spritefile = "assets/img/units/RobotSniperSmall.png"
     sprite=' '
-    hp=100
-    max_hp=100
+    hp=80
+    max_hp=80
     armor=5
-    shooting_radius=1280
+    shooting_radius=280
     shooting_speed=250 
     speed=2
     
@@ -257,7 +259,7 @@ class RPGRobot(ShootingUnit):
     hp = 150
     max_hp = 150
     armor = 15
-    shooting_radius = 350
+    shooting_radius = 140
     shooting_speed = 17  # ~1 в 3секунды
     speed = 3
 
@@ -328,10 +330,14 @@ class DevastatorVenicle(ShootingUnit):
 
 				
 class Banner(Entity):
+	#игрок, которому принадлежит знамя
 	player=0
 	spritefile="./assets/img/misc/banner_{}.png".format(player)
+	#время на захват флага
 	capture_time=200
+	#счетчик захвата флага
 	capture=0
+	#захватывающий в данный момент игрок
 	capture_player=0
 	
 	def __init__(self,window,x,y):
@@ -344,8 +350,10 @@ class Banner(Entity):
 		self.window.blit(self.sprite, (self.x,self.y))
 		if self.capture!=0:
 			pygame.draw.rect(self.window,(200,200,200),(self.x,self.y-5,64,4))
+			#шкала прогресса захвата
 			pygame.draw.rect(self.window,(50,200,50),(self.x,self.y-4,math.floor((self.capture/self.capture_time)*64),2))
 		
+	#один шаг захвата знамени
 	def capture_banner(self,player):
 		self.capture_player=player
 		self.capture+=1
@@ -355,15 +363,13 @@ class Banner(Entity):
 		
 	
 	def change_player(self,player):
-		self.player=player
-		print("player=",player)
+		self.player=player		
+		#заново выбирает файл спрайта
 		self.spritefile="./assets/img/misc/banner_{}.png".format(player)
+		#и перезагружает его
 		self.sprite=pygame.image.load(self.spritefile)
 	
-	#TO DO
-	#сделать время захвата флага
-	#сделать индикатор захвата флага
-
+#базовое строение
 class Building(Entity):
 	
 	units=[]
@@ -384,6 +390,7 @@ class Building(Entity):
 		unit = Unit(self.window,self.x+self.w+10,self.y+self.h+10)
 		unit.dest=(unit.x+random.randint(0,500),unit.y+random.randint(0,500))
 		unit.state='move'
+		unit.player=self.player
 		self.units.append(unit)
 
 	def ai(self):
@@ -398,9 +405,7 @@ class Building(Entity):
 		pygame.draw.rect(self.window,(50,200,50),(self.x,self.y-4,math.floor((self.production/self.production_speed)*self.w),2))
 		
 		'''TO DO
-		1.Анимация
-		2.Шкала производства
-		3.Точка назначения юнитов
+		1.Точка назначения юнитов
 		'''
 
 class GruntFactory(Building):
@@ -415,6 +420,7 @@ class GruntFactory(Building):
 		unit = GruntRobot(self.window,self.x+self.w//2+10,self.y+self.h+10)
 		unit.dest=unit.x,unit.y+30
 		unit.state='move'
+		unit.player=self.player
 		self.units.append(unit)
 	
 
@@ -430,11 +436,11 @@ class SniperFactory(Building):
 		super().__init__(window,x,y)
 		self.production_speed=380
 	
-	def produce_units(self):
-		print("Sniper factory pr speed", self.production_speed)
+	def produce_units(self):		
 		unit = SniperRobot(self.window,self.x+self.w//2+10,self.y+self.h+10)
 		unit.dest=unit.x,unit.y+30
 		unit.state='move'
+		unit.player=self.player
 		self.units.append(unit)
 	
 class RPGFactory(Building):
@@ -446,10 +452,10 @@ class RPGFactory(Building):
 		self.production_speed=580
 
 	def produce_units(self):
-		print("RPG factory pr speed", self.production_speed)
 		unit = RPGRobot(self.window,self.x+self.w//2+10,self.y+self.h+10)
 		unit.dest=unit.x,unit.y+30
 		unit.state='move'
+		unit.player=self.player
 		self.units.append(unit)	
 	
 class LightVenicleFactory(Building):
