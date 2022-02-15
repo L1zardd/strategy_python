@@ -2,6 +2,7 @@ import pygame,random, math
 from unit import *
 from interface import Frame, in_frame
 from level import Tile, Map
+#главное окно программы
 window = pygame.display.set_mode((1200,800),pygame.RESIZABLE)
 	
 run=True
@@ -9,7 +10,9 @@ run=True
 units=[]
 
 
-map1=Map(window,40,30)
+map1=Map(window,10,10)
+map1.open_level_file("level.lvl")
+
 
 
 building=Building(window,10,20)
