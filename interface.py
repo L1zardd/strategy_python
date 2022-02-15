@@ -14,10 +14,9 @@ class Frame:
 	def draw(self):
 		pygame.draw.rect(self.wnd,self.color,(self.x,self.y,self.w,self.h),5)
 
-
-def in_frame(frame,unit):
-	if (unit.x>frame.x) and (unit.x<frame.x+frame.w):
-		if (unit.y>frame.y) and (unit.y<frame.y+frame.w):
-			return True			
-	return False
+	def in_frame(self,unit):
+		if (unit.x>self.x) and (unit.x<self.x+self.w):
+			if (unit.y>self.y) and (unit.y<self.y+self.w):
+				return True
+		return False
 	
