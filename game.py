@@ -20,9 +20,11 @@ bullets=[]
 
 #Карта (задний фон)
 map1=Map(window,10,10)
+map1.open_level_file("level.lvl")
 
 #флаг для захвата
 banner1=Banner(window,600,400)
+
 
 #создание строений
 building=GruntFactory(window,10,120)
