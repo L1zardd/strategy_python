@@ -138,6 +138,8 @@ class ShootingUnit(Unit):
 	hp=100
 	max_hp=100
 	shooting_radius=50
+	shooting_speed=50
+	shooting=0 #счетчик для стрельбы
 	
 	#Броня
 	armor=5
@@ -165,7 +167,14 @@ class ShootingUnit(Unit):
 			
 		if self.state=="shoot":
 			if self.target!=None:
-				self.bullets.append(self.shoot())
+				if self.target.hp>=0:
+					self.shooting+=1
+					if self.shooting>=self.shooting_speed:
+						self.bullets.append(self.shoot())
+						self.shooting=0
+				else:
+					self.target=None
+					self.state="idle"
 				
 	def get_damage(self,dmg):
 		self.hp-=dmg
@@ -193,6 +202,14 @@ class Bullet(Unit):
 		else:
 			self.state="idle"
 
+class LaserRay(Bullet):
+	
+	color=(200,50,50)
+	damage=30
+	
+	def draw(self):
+		pygame.draw.line(self.window,self.color,(int(self.x),int(self.y)),(int(self.target.x),int(self.target.y)),3)
+
 class GruntRobot(ShootingUnit):
 	spritefile = "assets/img/units/RobotGruntSmall.png"
 	sprite=''
@@ -215,118 +232,124 @@ class GruntRobot(ShootingUnit):
 		self.window.blit(self.sprite,(self.x,self.y))
 	
 class InfantryRobot(ShootingUnit):
-     spritefile="assets/img/units/RobotInfantrySmall.png"
-     sprite=''
+	 spritefile="assets/img/units/RobotInfantrySmall.png"
+	 sprite=''
 
-     hp=100
-     max_hp=100
-     armor=7
-     shooting_speed=150
-     shooting_radius=100
-     speed=5
+	 hp=100
+	 max_hp=100
+	 armor=7
+	 shooting_speed=150
+	 shooting_radius=100
+	 speed=5
 
 
-     def __init__(self,window,x,y):
-         super().__init__(window,x,y)
-         self.sprite=pygame.image.load(self.spritefile)
-         #self.sprite=pygame.transform.scale(self.sprite,(32,32))
+	 def __init__(self,window,x,y):
+		 super().__init__(window,x,y)
+		 self.sprite=pygame.image.load(self.spritefile)
+		 #self.sprite=pygame.transform.scale(self.sprite,(32,32))
 
-     def draw(self):
-         self.window.blit(self.sprite,(self.x,self.y) )
+	 def draw(self):
+		 self.window.blit(self.sprite,(self.x,self.y) )
 
 class SniperRobot(ShootingUnit):
-    spritefile = "assets/img/units/RobotSniperSmall.png"
-    sprite=' '
-    hp=80
-    max_hp=80
-    armor=5
-    shooting_radius=280
-    shooting_speed=250 
-    speed=2
-    
-    def __init__(self,window,x,y):
-        super().__init__(window,x,y)
-        self.sprite=pygame.image.load(self.spritefile)
-        #self.sprite=pygame.transform.scale(self.sprite,(32,32))
+	spritefile = "assets/img/units/RobotSniperSmall.png"
+	sprite=' '
+	hp=80
+	max_hp=80
+	armor=5
+	shooting=249
+	shooting_radius=280
+	shooting_speed=250 
+	speed=2
+	
+	def __init__(self,window,x,y):
+		super().__init__(window,x,y)
+		self.sprite=pygame.image.load(self.spritefile)
+		#self.sprite=pygame.transform.scale(self.sprite,(32,32))
 
-    def draw(self):
-        self.window.blit(self.sprite,(self.x,self.y))
+	def draw(self):
+		self.window.blit(self.sprite,(self.x,self.y))
+		
+	def shoot(self):
+		bullet=LaserRay(self.window,self.x,self.y)
+		bullet.target=self.target
+		return bullet
 
 class RPGRobot(ShootingUnit):
-    spritefile = "assets/img/units/RobotRPGSmall.png"
-    sprite = ''
+	spritefile = "assets/img/units/RobotRPGSmall.png"
+	sprite = ''
 
-    hp = 150
-    max_hp = 150
-    armor = 15
-    shooting_radius = 140
-    shooting_speed = 17  # ~1 в 3секунды
-    speed = 3
+	hp = 150
+	max_hp = 150
+	armor = 15
+	shooting_radius = 140
+	shooting_speed = 17  # ~1 в 3секунды
+	speed = 3
 
-    def __init__(self, window, x, y):
-        super().__init__(window, x, y)
-        self.sprite = pygame.image.load(self.spritefile)
-        #self.sprite = pygame.transform.scale(self.sprite, (32, 32))
+	def __init__(self, window, x, y):
+		super().__init__(window, x, y)
+		self.sprite = pygame.image.load(self.spritefile)
+		#self.sprite = pygame.transform.scale(self.sprite, (32, 32))
 
-    def draw(self):
-        self.window.blit(self.sprite, (self.x, self.y))
+	def draw(self):
+		self.window.blit(self.sprite, (self.x, self.y))
 	
 class LightVenicle(ShootingUnit):
-    spritefile = "assets/img/units/LightVenicleSmall.png"
-    sprite=''
-    hp=130
-    max_hp=130
-    armor=5
-    shooting_radius=128
-    shooting_speed=80 # ~1 в секунду
-    speed=9
+	spritefile = "assets/img/units/LightVenicleSmall.png"
+	sprite=''
+	hp=130
+	max_hp=130
+	armor=5
+	shooting_radius=128
+	shooting_speed=80 # ~1 в секунду
+	speed=9
 
-    def __init__(self,window,x,y):
-        super().__init__(window,x,y)
-        self.sprite=pygame.image.load(self.spritefile)
-        #self.sprite=pygame.transform.scale(self.sprite,(32,32))
+	def __init__(self,window,x,y):
+		super().__init__(window,x,y)
+		self.sprite=pygame.image.load(self.spritefile)
+		#self.sprite=pygame.transform.scale(self.sprite,(32,32))
 
-    def draw(self):
-        self.window.blit(self.sprite,(self.x,self.y))
+	def draw(self):
+		self.window.blit(self.sprite,(self.x,self.y))
 	
 class TankVenicle(ShootingUnit):
-    
-    spritefile = "assets/img/units/TankVenicleSmall.png"
-    sprite=''
-    
-    hp=700
-    max_hp=700
-    armor=10
-    shooting_radius=256
-    shooting_speed=125 # ~1 раз в 2.5 секунды
-    speed=5
-    
-    def __init__(self, window, x, y):
-        super().__init__(window, x ,y)
-        self.sprite=pygame.image.load(self.spritefile)
-        #self.sprite=pygame.transform.scale(self.sprite, (128,64))
+	
+	spritefile = "assets/img/units/TankVenicleSmall.png"
+	sprite=''
+	
+	hp=700
+	max_hp=700
+	armor=10
+	shooting_radius=256
+	shooting_speed=125 # ~1 раз в 2.5 секунды
+	speed=5
+	
+	def __init__(self, window, x, y):
+		super().__init__(window, x ,y)
+		self.sprite=pygame.image.load(self.spritefile)
+		#self.sprite=pygame.transform.scale(self.sprite, (128,64))
 
-    
-    def draw(self):
-        self.window.blit(self.sprite,(self.x,self.y))
+	
+	def draw(self):
+		self.window.blit(self.sprite,(self.x,self.y))
 	
 class DevastatorVenicle(ShootingUnit):
-    spritefile = "assets/img/units/DevastatorSmall.png"
-    sprite=''
+	spritefile = "assets/img/units/DevastatorSmall.png"
+	sprite=''
 
-    hp=500
-    max_hp=500
-    armor=15
-    shooting_radius=128
-    shooting_speed=10 # ~1 в секунду
-    speed=1
-    def __init__(self,window,x,y):
-        super().__init__(window,x,y)
-        self.sprite=pygame.image.load(self.spritefile)
-        #self.sprite=pygame.transform.scale(self.sprite,(32,32))
+	hp=500
+	max_hp=500
+	armor=15
+	shooting_radius=128
+	shooting_speed=10 # ~1 в секунду
+	speed=1
+	def __init__(self,window,x,y):
+		super().__init__(window,x,y)
+		self.sprite=pygame.image.load(self.spritefile)
+		#self.sprite=pygame.transform.scale(self.sprite,(32,32))
 
-    def draw(self):
-        self.window.blit(self.sprite,(self.x,self.y))
+	def draw(self):
+		self.window.blit(self.sprite,(self.x,self.y))
 
 				
 class Banner(Entity):

@@ -19,7 +19,7 @@ buildings=[]
 bullets=[]
 
 #Карта (задний фон)
-map1=Map(window,10,10)
+map1=Map(window,50,50)
 map1.open_level_file("level.lvl")
 
 #флаг для захвата
@@ -68,7 +68,7 @@ while run:
 						un.set_destination_point((event.pos[0],event.pos[1]))
 						un.state="move"
 			#если средняя - выбор юнитов
-			elif event.button == 2:
+			elif event.button == 3:
 				get_unit=False
 				#выбор юнита, попавшего на курсор
 				for un in units:
@@ -86,17 +86,17 @@ while run:
 					frame.x,frame.y=event.pos
 					frame.h,frame.w=0,0
 				
-			#если правая - создание юнитов
+			#если средняя - создание юнитов
 			#Для тестовых целей, отключим потом 
-			elif event.button == 3:
-				units.append(Unit(window,event.pos[0],event.pos[1]))
+			elif event.button == 2:
+				units.append(GruntRobot(window,event.pos[0],event.pos[1]))
 				#юнит игрока №2
 				units[-1].player=2
 				units[-1].selected=False
 		#если мышь движется
 		if event.type==pygame.MOUSEMOTION:
-			#И зажата средняя кнопка
-			if event.buttons==(0,1,0):
+			#И зажата правая кнопка
+			if event.buttons==(0,0,1):
 				#Рисуем рамку
 				frame.h=event.pos[1]-frame.y
 				frame.w=event.pos[0]-frame.x
@@ -111,7 +111,7 @@ while run:
 							un.selected=False
 		#Отпустили мышь
 		if event.type ==pygame.MOUSEBUTTONUP:
-			if event.button==2:
+			if event.button==3:
 				#Убрали рамку
 				frame.x=-10
 				frame.y=-10
@@ -149,7 +149,7 @@ while run:
 			banner1.capture_banner(unit.player)
 			
 			
-		#стрельба (переписать)
+		#стрельба		
 		#перебираем всех врагов
 		for en_unit in units:
 			if en_unit.player!=unit.player:
