@@ -137,9 +137,12 @@ class ShootingUnit(Unit):
 	#Хитпойнты
 	hp=100
 	max_hp=100
+	#дистанция стрельбы
 	shooting_radius=50
+	#скорость перезарядки
 	shooting_speed=50
-	shooting=0 #счетчик для стрельбы
+	#счетчик для стрельбы
+	shooting=0 
 	
 	#Броня
 	armor=5
@@ -147,10 +150,11 @@ class ShootingUnit(Unit):
 	#Пули	
 	bullets=[]
 	
+	#настройка цели
 	def set_target(self,target):
 		self.target=target
 		
-	
+	#создаем снаряд
 	def shoot(self):
 		bullet=Bullet(self.window,self.x,self.y)
 		bullet.target=self.target
@@ -164,19 +168,32 @@ class ShootingUnit(Unit):
 		
 		if self.state=="patrol":
 			self.go_to_dest()
-			
+			#если стреляем
 		if self.state=="shoot":
+			#если есть цель стрельбы
 			if self.target!=None:
+				#и она жива
 				if self.target.hp>=0:
+					#счетчик перезарядки возрастает на единицу
 					self.shooting+=1
+					#если дошел до порогового значения
 					if self.shooting>=self.shooting_speed:
+						#создаем пулю
 						self.bullets.append(self.shoot())
 						self.shooting=0
 				else:
+					#если цели нет - останавливаем юнит
 					self.target=None
 					self.state="idle"
-				
+	#получение урона			
 	def get_damage(self,dmg):
+		#поправка на броню - случайная
+		a=random.randint(0,self.armor)
+		#поправку вычитаем
+		dmg=dmg-a
+		if dmg<0:
+			dmg=0
+		#уменьшаем здоровье
 		self.hp-=dmg
 			
 
@@ -191,13 +208,18 @@ class Bullet(Unit):
 	
 		
 	def draw(self):
+		#рисуем круг
 		pygame.draw.circle(self.window,self.color,(int(self.x),int(self.y)),2)
 		
 	def ai(self):
+		#если цель есть
 		if self.target!=None:
+			#двигаемся к цели
 			self.set_destination_point((self.target.x,self.target.y))
 			self.go_to_dest()
+			#если до цели долетели
 			if self.state=="idle":
+				#наносим урон
 				self.target.get_damage(self.damage)
 		else:
 			self.state="idle"
@@ -362,6 +384,7 @@ class Banner(Entity):
 	capture=0
 	#захватывающий в данный момент игрок
 	capture_player=0
+	connected_factory=None
 	
 	def __init__(self,window,x,y):
 		self.window=window
@@ -391,6 +414,7 @@ class Banner(Entity):
 		self.spritefile="./assets/img/misc/banner_{}.png".format(player)
 		#и перезагружает его
 		self.sprite=pygame.image.load(self.spritefile)
+		self.connected_factory.player=player
 	
 #базовое строение
 class Building(Entity):
@@ -417,10 +441,11 @@ class Building(Entity):
 		self.units.append(unit)
 
 	def ai(self):
-		self.production+=1
-		if self.production>=self.production_speed:
-			self.production=0
-			self.produce_units()
+		if self.player!=0:
+			self.production+=1
+			if self.production>=self.production_speed:
+				self.production=0
+				self.produce_units()
 	
 	def draw(self):
 		self.window.blit(self.sprite, (self.x,self.y))
@@ -449,7 +474,19 @@ class GruntFactory(Building):
 
 
 class InfantryFactory(Building):
-	pass #Matthew		
+	spritefile="./assets/img/buildings/infantry_factory.png"
+	production_speed=280
+	
+	def __init__(self,window,x,y):
+		super().__init__(window,x,y)
+		self.production_speed=380
+	
+	def produce_units(self):		
+		unit = InfantryRobot(self.window,self.x+self.w//2+10,self.y+self.h+10)
+		unit.dest=unit.x,unit.y+30
+		unit.state='move'
+		unit.player=self.player
+		self.units.append(unit)	
 
 class SniperFactory(Building):
 	spritefile="./assets/img/buildings/sniper_factory.png"
@@ -467,7 +504,7 @@ class SniperFactory(Building):
 		self.units.append(unit)
 	
 class RPGFactory(Building):
-	production_speed=580
+	production_speed=480
 	spritefile="./assets/img/buildings/RPG_factory.png"
 	
 	def __init__(self,window,x,y):
@@ -482,4 +519,16 @@ class RPGFactory(Building):
 		self.units.append(unit)	
 	
 class LightVenicleFactory(Building):
-	pass #Alexei	
+	production_speed=1000
+	spritefile="./assets/img/buildings/light_venicle_factory.png"
+	
+	def __init__(self,window,x,y):
+		super().__init__(window,x,y)
+		self.production_speed=580
+
+	def produce_units(self):
+		unit = LightVenicle(self.window,self.x+self.w//2+10,self.y+self.h+10)
+		unit.dest=unit.x,unit.y+30
+		unit.state='move'
+		unit.player=self.player
+		self.units.append(unit)		
