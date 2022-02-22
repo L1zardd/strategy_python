@@ -24,7 +24,7 @@ class Map:
 	#окно отрисовки
 	window=None
 	#файл с тайлами
-	tilemap_file='daLandSnow.png'
+	tilemap_file='assets/img/tiles/daLandSnow.png'
 	tilemap=None
 	
 	def __init__(self,window,w,h):
